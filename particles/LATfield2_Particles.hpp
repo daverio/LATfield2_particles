@@ -1,8 +1,6 @@
 #ifndef LATFIELD2_PARTICLES_HPP
 #define LATFIELD2_PARTICLES_HPP
 
-
-
 /**
  * \defgroup partModule Particles Module
  * @{
@@ -66,6 +64,14 @@
 #include "LATfield2_particlesIO.h"
 #endif
 
+#define GLOBAL_MASS     0
+#define INDIVIDUAL_MASS 1
+#define NO_MASS         2
+#include "projections.hpp"
+
+namespace LATfield2 
+{
+
 CREATE_MEMBER_DETECTOR(mass)
 CREATE_MEMBER_DETECTOR(ID)
 CREATE_MEMBER_DETECTOR(vel)
@@ -73,9 +79,6 @@ CREATE_MEMBER_DETECTOR(pos)
 CREATE_MEMBER_DETECTOR(type_name)
 CREATE_MEMBER_DETECTOR_MAXI(mass)
 
-#define GLOBAL_MASS     0
-#define INDIVIDUAL_MASS 1
-#define NO_MASS         2
 
 
 #define SUM             1
@@ -87,11 +90,9 @@ CREATE_MEMBER_DETECTOR_MAXI(mass)
 
 #define MAX_NUMBER 9223372036854775807
 
-using namespace LATfield2;
 
 template <typename part, typename part_info, typename part_dataType>
 class Particles;
-#include "projections.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 template <typename  part>
@@ -549,12 +550,12 @@ void Particles<part,part_info,part_dataType>::cout_particle_velocity_stats(const
   parallel.sum(mean,3);
   for(int i=0;i<3;i++)mean[i] /= count;
 
-  COUT<<"--- "<<text<<" velocity stats ---"<<setprecision(10)<<endl;
+  COUT<<"--- "<<text<<" velocity stats ---"<<std::setprecision(10)<<endl;
   for(int i=0;i<3;i++)
   {
     COUT<<"comp "<<i<< " : min "<<min[i]<< " ; max "<<max[i]<< " ; mean "<<mean[i]<<endl;
   }
-  COUT<<"----------------------"<<setprecision(6)<<endl;
+  COUT<<"----------------------"<<std::setprecision(6)<<endl;
 
 }
 
@@ -751,7 +752,7 @@ Real Particles<part,part_info,part_dataType>::updateVel(Real (*updateVel_funct)(
 
     typename std::list<part>::iterator it;
     double frac[3];
-    Real x0;
+    // Real x0;
     Real maxvel = 0.;
     Real v2;
 
@@ -898,7 +899,6 @@ void Particles<part,part_info,part_dataType>::moveParticles( void (*move_funct)(
       int localCoord[3];
       int newLocalCoord[3];
 
-      bool flag[4];
 
 
       part **sendBuffer;
@@ -1812,7 +1812,6 @@ void Particles<part,part_info,part_dataType>::moveParticles( void (*move_funct)(
     int localCoord[3];
     int newLocalCoord[3];
 
-    bool flag[4];
 
 
     part **sendBuffer;
@@ -2713,11 +2712,11 @@ void Particles<part,part_info,part_dataType>::saveHDF5(string filename_base, int
 
 
     int numProcPerFile = parallel.size()/fileNumber;
-    int numProcPerFileDim1 = parallel.grid_size()[1]/fileNumber;
+    // int numProcPerFileDim1 = parallel.grid_size()[1]/fileNumber;
     int whichFile  = parallel.grid_rank()[1] * fileNumber / parallel.grid_size()[1];
     //int rankInFile;
-    long numParts[numProcPerFile];
-    int ranksList[numProcPerFile];
+    // long numParts[numProcPerFile];
+    // int ranksList[numProcPerFile];
     MPI_Comm fileComm;
     MPI_Group fileGroup;
     part * partlist;
@@ -2765,17 +2764,17 @@ void Particles<part,part_info,part_dataType>::saveHDF5(string filename_base, int
     fd.localBoxOffset[2] = lat_resolution_ * (Real)(lat_part_.coordSkip()[0]);
 
 
-    Real fileBoxSize[fileNumber];
+    std::vector<Real> fileBoxSize(fileNumber);
     for(int i=0;i<fileNumber;i++)fileBoxSize[i]=0;
     fileBoxSize[whichFile]=fd.localBoxSize[1];
-    parallel.sum_dim1(fileBoxSize,fileNumber);
+    parallel.sum_dim1(fileBoxSize.data(),fileNumber);
 
 
 
-    Real fileBoxOffset[fileNumber];
+    std::vector<Real> fileBoxOffset(fileNumber);
     for(int i=0;i<fileNumber;i++)fileBoxOffset[i]=boxSize_[1]+1.;
     fileBoxOffset[whichFile]=fd.localBoxOffset[1];
-    parallel.min_dim1(fileBoxOffset,fileNumber);
+    parallel.min_dim1(fileBoxOffset.data(),fileNumber);
 
     fd.fileBoxSize = fileBoxSize[whichFile];
     fd.fileBoxOffset = fileBoxOffset[whichFile];
@@ -2805,7 +2804,8 @@ template <typename part, typename part_info, typename part_dataType>
 void Particles<part,part_info,part_dataType>::loadHDF5(string filename_base, int fileNumber)
 {
     //get_fd_global.
-    struct fileDsc fd[fileNumber];
+    std::vector<fileDsc> fd(fileNumber);
+    //struct fileDsc fd[fileNumber];
 
     part * partList;
     long partList_size,partList_offset;
@@ -3055,6 +3055,6 @@ void Particles<part,part_info,part_dataType>::saveHDF5_server_write(string filen
 /**@}*/
 
 
-
+}
 
 #endif

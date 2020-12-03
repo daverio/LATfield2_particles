@@ -7,9 +7,12 @@
  \author David Daverio, Neil Bevis
  */ 
 
+#include <fstream>
 
+namespace LATfield2
+{
 
-
+    using std::fstream;
 
 
 //CONSTANTS=====================
@@ -237,7 +240,7 @@ void Lattice::initializeRealFFT(Lattice & lat_real, int halo)
 		parallel.abortForce();
 	}
 	
-	if(lat_real.size(0)!=lat_real.size(1) | lat_real.size(2)!=lat_real.size(1))
+	if(lat_real.size(0)!=lat_real.size(1) or lat_real.size(2)!=lat_real.size(1))
 	{
 		if(parallel.isRoot())
 		{
@@ -272,7 +275,7 @@ void Lattice::initializeComplexFFT(Lattice & lat_real, int halo)
 		parallel.abortForce();
 	}
 	
-	if(lat_real.size(0)!=lat_real.size(1) | lat_real.size(2)!=lat_real.size(1))
+	if(lat_real.size(0)!=lat_real.size(1) or lat_real.size(2)!=lat_real.size(1))
 	{
 		if(parallel.isRoot())
 		{
@@ -408,15 +411,15 @@ int Lattice::getRankDim1(int coord)
 
 //MISCELLANEOUS======================
 
-bool Lattice::is_arch_saved() {return arch_saved_;};
-int  Lattice::dim() { return dim_; };
-int* Lattice::size() { return size_; };
+bool Lattice::is_arch_saved() {return arch_saved_;}
+int  Lattice::dim() { return dim_; }
+int* Lattice::size() { return size_; }
 int  Lattice::size(int i) { return size_[i]; }
 long  Lattice::sites() { return sites_; }
 long  Lattice::sitesGross() { return sitesGross_; }
 int  Lattice::halo() { return halo_; }
 
-int* Lattice::sizeLocal() { return sizeLocal_; };
+int* Lattice::sizeLocal() { return sizeLocal_; }
 int  Lattice::sizeLocal(int i) { return sizeLocal_[i]; }
 long  Lattice::sitesLocal() { return sitesLocal_; }
 long  Lattice::sitesLocalGross() { return sitesLocalGross_; }
@@ -431,5 +434,6 @@ long Lattice::siteLast() { return siteLast_; }
 int * Lattice::sizeLocalAllProcDim0(){ return sizeLocalAllProcDim0_; }
 int * Lattice::sizeLocalAllProcDim1(){ return sizeLocalAllProcDim1_; }
 
+}
 #endif
 

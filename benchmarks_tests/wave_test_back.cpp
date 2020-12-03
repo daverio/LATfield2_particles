@@ -1,8 +1,11 @@
+#define FFT3D
 #include <iostream>
 #include <iomanip>
 #include "LATfield2.hpp"
+#include <mpi.h>
 
 using namespace LATfield2;
+using namespace std;
 
 #define TOLERANCE 1.0e-10
 
@@ -14,13 +17,14 @@ double chop(const double val, const double tol)
 
 int main(int argc, char **argv)
 {
-    int n,m;
+    MPI_Init(&argc,&argv);
+    int n=0,m=0;
     int BoxSize = 64;
     int halo = 1;
     int khalo =0;
     int dim = 3;
     int comp = 1;
-    int i,j,l,rnk;
+    int i,j,l;
     double val;
     int count = 0;
 
@@ -41,7 +45,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-    parallel.initialize(n,m);
+    parallel.initialize(MPI_COMM_WORLD,n,m);
 
     Lattice lat(dim,BoxSize,halo);
     Lattice latK;
@@ -87,7 +91,7 @@ int main(int argc, char **argv)
 		fft_time_total += MPI_Wtime() - fft_time_start;
 
 #ifdef FULL_OUTPUT
-		for (rnk = 0; rnk < parallel.size(); rnk++)
+		for (int rnk = 0; rnk < parallel.size(); rnk++)
 		{
 			MPI_Barrier(MPI_COMM_WORLD);
 			if (parallel.rank() == rnk)
@@ -156,6 +160,7 @@ int main(int argc, char **argv)
 
     parallel.sum(count);
 
+    MPI_Finalize();
     exit(count);
 }
 

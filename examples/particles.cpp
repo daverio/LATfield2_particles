@@ -1,14 +1,19 @@
+#define FFT3D
+#define HDF5
 #include <stdlib.h>
 #include "LATfield2.hpp"
+#include <mpi.h>
 
 using namespace LATfield2;
 
 int main(int argc, char **argv)
 {
+    MPI_Init(&argc,&argv);
 
-
-    int n,m;
-    int io_groupe_size,io_size;
+    int n=0,m=0;
+    #ifdef EXTERNAL_IO
+    int io_groupe_size=0,io_size=0;
+    #endif
     string str_filename;
     int npts = 64;
     int numparts = 64;
@@ -25,12 +30,14 @@ int main(int argc, char **argv)
             case 'm':
                 m =  atoi(argv[++i]); //size of the dim 2 of the processor grid
                 break;
+             #ifdef EXTERNAL_IO
             case 'i':
                 io_size =  atoi(argv[++i]);
                 break;
             case 'g':
                 io_groupe_size = atoi(argv[++i]);
                 break;
+            #endif
             case 'o':
                 str_filename = argv[++i];
                 break;
@@ -47,10 +54,10 @@ int main(int argc, char **argv)
     }
 
 #ifndef EXTERNAL_IO
-    parallel.initialize(n,m);
+    parallel.initialize(MPI_COMM_WORLD,n,m);
 #else
 
-    parallel.initialize(n,m,io_size,io_groupe_size);
+    parallel.initialize(MPI_COMM_WORLD,n,m,io_size,io_groupe_size);
     if(parallel.isIO()) ioserver.start();
     else
     {
@@ -58,7 +65,7 @@ int main(int argc, char **argv)
 #endif
         int dim=3;
         int halo=1;
-        int khalo=1;
+        // int khalo=1;
 
 
         Lattice lat_part(dim,npts,0);
@@ -71,13 +78,13 @@ int main(int argc, char **argv)
         Real boxSize[3];
         for(int i=0;i<3;i++)boxSize[i] = latresolution * lat_part.size(i);
 
-        double timerRef;
-        double timerWrite,timerLoad,timerWriteServer;
+        // double timerRef;
+        //double timerWrite,timerLoad,timerWriteServer;
 
-        double timerProjScalar,timerProjVector,timerProjTensor;
-        double timerCommScalar,timerCommVector,timerCommTensor;
+        // double timerProjScalar,timerProjVector,timerProjTensor;
+        // double timerCommScalar,timerCommVector,timerCommTensor;
 
-        double timerMove,timerVel;
+        // double timerMove,timerVel;
 
         Site x(lat);
 
@@ -156,21 +163,21 @@ int main(int argc, char **argv)
 #endif
 
 
-        timerRef = MPI_Wtime();
+        // timerRef = MPI_Wtime();
         parts.saveHDF5("bench_part",1);
-        timerWrite = MPI_Wtime() - timerRef;
+        //timerWrite = MPI_Wtime() - timerRef;
 
 
-        timerRef = MPI_Wtime();
+        // timerRef = MPI_Wtime();
         parts.loadHDF5("bench_part",1);
-        timerLoad = MPI_Wtime() - timerRef;
+        // timerLoad = MPI_Wtime() - timerRef;
 
 
 
 #ifdef EXTERNAL_IO
-        timerRef = MPI_Wtime();
+        // timerRef = MPI_Wtime();
         parts.saveHDF5_server_write();
-        timerWriteServer = MPI_Wtime() - timerRef;
+        // timerWriteServer = MPI_Wtime() - timerRef;
 
         ioserver.closeOstream();
 #endif
@@ -254,4 +261,5 @@ int main(int argc, char **argv)
         ioserver.stop();
     }
 #endif
+    MPI_Finalize();
 }

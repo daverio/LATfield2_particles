@@ -6,7 +6,12 @@
  \author David Daverio, Neil Bevis
  */
 
+#include <fstream>
 
+namespace LATfield2
+{
+
+    using std::fstream;
 //Matrix-style component symmetry
 
 inline int getCompSym(int i,int j)
@@ -407,8 +412,6 @@ class Field
 #ifdef HDF5
         void get_h5type();
 #endif
-    public:
-        FieldType* data_;
 	protected:
 		//MEMBER DATA
 		Lattice*   lattice_;
@@ -435,6 +438,8 @@ class Field
         int iof_offset_;
         int iof_thickness_;
 #endif
+    public:
+        FieldType* data_;
 
 	};
 
@@ -1963,5 +1968,5 @@ void defaultFieldLoad(fstream& file, FieldType* siteData, int components)
 	for(int i=0; i<components; i++) { file>>siteData[i]; }
 }
 
-
+}
 #endif

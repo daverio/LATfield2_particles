@@ -1,7 +1,11 @@
 #ifndef LATFIELD2_PROJECTIONS_HPP
 #define LATFIELD2_PROJECTIONS_HPP
 
+namespace LATfield2
+{
 
+template <typename part, typename part_info, typename part_dataType>
+class Particles;
 
 /*! \file projections.hpp
  \brief projection function for scalar, vector and tensor particle properties.
@@ -96,7 +100,7 @@ void scalarProjectionCIC_project(Particles<part,part_info,part_dataType> * parts
     double rescalPosDown[3];
     double latresolution = parts->res();
 
-    double mass;
+    double mass{};
     double cicVol;
     cicVol= latresolution*latresolution*latresolution;
     cicVol *= cicVol;
@@ -428,7 +432,7 @@ void vectorProjectionCICNGP_project(Particles<part,part_info,part_dataType> * pa
 
     double vi[36];//3 * 4 v0:0..3 v1:4..7 v2:8..11
 
-    double mass;
+    double mass{};
     double latresolution = parts->res();
 
     double cicVol = latresolution * latresolution * latresolution;
@@ -714,7 +718,7 @@ void symtensorProjectionCICNGP_project(Particles<part,part_info,part_dataType> *
 
     typename std::list<part>::iterator it;
 
-    double mass;
+    double mass{};
     double latresolution = parts->res();
     double cicVol = latresolution * latresolution * latresolution;
 
@@ -1814,6 +1818,6 @@ void VecVecProjectionCIC_comm(Field<Real> * Tij)
 }
 
 #endif
-
+}
 /**@}*/
 #endif

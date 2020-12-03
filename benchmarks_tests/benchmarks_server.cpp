@@ -1,3 +1,6 @@
+#define EXTERNAL_IO
+#define FFT3D
+#define HDF5
 /*! file benchmarks.cpp
     Created by David Daverio.
  
@@ -5,10 +8,12 @@
  
  */
 
+#include <mpi.h>
 #include <unistd.h>
 
 #include <iostream>
 #include "LATfield2.hpp"
+#include <mpi.h>
 
 using namespace LATfield2;
 
@@ -16,6 +21,7 @@ using namespace LATfield2;
 
 int main(int argc, char **argv)
 {
+    MPI_Init(&argc,&argv);
     int l,m;
     int io_size;
     int io_groupe_size;
@@ -50,7 +56,7 @@ int main(int argc, char **argv)
 	}
 
 	
-    parallel.initialize(l,m,io_size,io_groupe_size);
+    parallel.initialize(MPI_COMM_WORLD,l,m,io_size,io_groupe_size);
     
     if(parallel.isIO())ioserver.start();
     else
@@ -156,5 +162,6 @@ int main(int argc, char **argv)
     
     
     
+    MPI_Finalize();
 }
    

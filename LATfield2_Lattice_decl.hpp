@@ -10,11 +10,22 @@
  
  
  */
+
+#include <string>
+
+namespace LATfield2
+{
+ 
+ using std::string;
+ 
 class Lattice
 {
 public:
     //! Constructor.
     Lattice();
+    
+    Lattice(const Lattice&) = delete;
+    Lattice& operator=(const Lattice&) = delete;
     
     /*!
      Constructor with initialization
@@ -217,4 +228,5 @@ private:
     
 };
 
+}
 #endif

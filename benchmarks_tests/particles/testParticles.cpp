@@ -1,5 +1,11 @@
+#define FFT3D
+#define HDF5
+#define H5_HAVE_PARALLEL
+#define EXTERNAL_IO
+#include <mpi.h>
 #include <stdlib.h>
 #include "LATfield2.hpp"
+#include <mpi.h>
 
 
 using namespace LATfield2;
@@ -8,10 +14,11 @@ using namespace LATfield2;
 
 int main(int argc, char **argv)
 {
+    MPI_Init(&argc,&argv);
 	
 	
-	int n,m;
-    int io_groupe_size,io_size;
+	int n=0,m=0;
+    int io_groupe_size=0,io_size=0;
 	
 	for (int i=1 ; i < argc ; i++ ){
 		if ( argv[i][0] != '-' )
@@ -33,9 +40,9 @@ int main(int argc, char **argv)
 	}
 	
 	
-    parallel.initialize(n,m,io_size,io_groupe_size);
+    parallel.initialize(MPI_COMM_WORLD,n,m,io_size,io_groupe_size);
     
-    if(parallel.isIO()) IO_Server.start();
+    if(parallel.isIO()) ioserver.start();
     else
     {
         int dim=3;
@@ -81,8 +88,11 @@ int main(int argc, char **argv)
         part_simple part;
         long index =0;
         for(int i=0;i<numparts;i++)
+        {    
             for(int j=0;j<numparts;j++)
-                for(int k=0;k<numparts;k++){
+            {    
+                for(int k=0;k<numparts;k++)
+                {   
                     part.ID=index;
                     part.pos[0]= (Real)i * (Real)boxSize[0] / (Real)numparts;
                     part.pos[1]= (Real)j * (Real)boxSize[1] / (Real)numparts;
@@ -120,11 +130,11 @@ int main(int argc, char **argv)
          }
     
         
-        IO_Server.openOstream();
+        ioserver.openOstream();
         parts.saveHDF5_server_open("testserver");
         parts.saveHDF5_server_write();
         
-        IO_Server.closeOstream();
+        ioserver.closeOstream();
         
         
         //sleep(1);
@@ -132,7 +142,7 @@ int main(int argc, char **argv)
         //parts.saveHDF5_server_open("testserver");
         //parts.saveHDF5_server_write();
         
-        //IO_Server.closeOstream();
+        //ioserver.closeOstream();
         
         
         
@@ -172,11 +182,11 @@ int main(int argc, char **argv)
         output_type[5]=SUM_LOCAL;
         
         
-         for(int i=0;i<1;i++)
-         {
-             parts.updateVel(&updateVel_gevolution,1,listField_updateVel,2,updateVel_gevolution_params,output,output_type,6);
-             parts.moveParticles(&move_particles_gevolution,1,listField_move,0,&rescaleB,output,output_type,6);
-         }
+         // for(int i=0;i<1;i++)
+         // {
+         //     parts.updateVel(&updateVel_gevolution,1,listField_updateVel,2,updateVel_gevolution_params,output,output_type,6);
+         //     parts.moveParticles(&move_particles_gevolution,1,listField_move,0,&rescaleB,output,output_type,6);
+         // }
         
         
         /*
@@ -214,10 +224,11 @@ int main(int argc, char **argv)
         
          */
 
-        IO_Server.stop();
+        ioserver.stop();
     }
 	
 	
+    MPI_Finalize();
     
 }
 

@@ -1,14 +1,18 @@
+#define FFT3D
+#define HDF5
 #include <stdlib.h>
 #include "LATfield2.hpp"
+#include <mpi.h>
 
 using namespace LATfield2;
 
 int main(int argc, char **argv)
 {
     
+    MPI_Init(&argc,&argv);
     
-    int n,m;
-    int io_groupe_size,io_size;
+    int n=0,m=0;
+    // int io_groupe_size=0,io_size=0;
     string str_filename;
     int npts = 64;
     int numparts = 64;
@@ -29,11 +33,11 @@ int main(int argc, char **argv)
     }
     
 
-    parallel.initialize(n,m);
+    parallel.initialize(MPI_COMM_WORLD,n,m);
 
         int dim=3;
         int halo=1;
-        int khalo=1;
+        // int khalo=1;
         
         
         Lattice lat_part(dim,npts,0);
@@ -46,13 +50,13 @@ int main(int argc, char **argv)
         Real boxSize[3];
         for(int i=0;i<3;i++)boxSize[i] = latresolution * lat_part.size(i);
         
-        double timerRef;
-        double timerWrite,timerLoad,timerWriteServer;
+        // double timerRef;
+        //double timerWrite,timerLoad;//,timerWriteServer;
         
-        double timerProjScalar,timerProjVector,timerProjTensor;
-        double timerCommScalar,timerCommVector,timerCommTensor;
+        // double timerProjScalar,timerProjVector,timerProjTensor;
+        // double timerCommScalar,timerCommVector,timerCommTensor;
         
-        double timerMove,timerVel;
+        // double timerMove,timerVel;
         
         Site x(lat);
         
@@ -106,14 +110,15 @@ int main(int argc, char **argv)
         cout<<"implementation done"<<endl;
         
         
-        timerRef = MPI_Wtime();
+        // timerRef = MPI_Wtime();
         parts.saveHDF5("bench_part",2);
-        timerWrite = MPI_Wtime() - timerRef;
+        //timerWrite = MPI_Wtime() - timerRef;
         
         
-        timerRef = MPI_Wtime();
+        // timerRef = MPI_Wtime();
         parts.loadHDF5("bench_part",2);
-        timerLoad = MPI_Wtime() - timerRef;
+        // timerLoad = MPI_Wtime() - timerRef;
         
+    MPI_Finalize();
 }
 

@@ -1,6 +1,11 @@
 #ifndef LATFIELD_PARTICLESIO_H
 #define LATFIELD_PARTICLESIO_H
 
+#include <string>
+
+namespace LATfield2
+{
+    using std::string;
 
 #ifndef RealC
 #ifdef SINGLE
@@ -34,7 +39,7 @@ template<typename part_info,typename parts_datatype>
 void get_partInfo(string filename, part_info &partInfo, parts_datatype partdatatype)
 {
 #ifdef H5_HAVE_PARALLEL
-hid_t plist_id,file_id,attr_id,root_id,dataset_id;
+hid_t plist_id,file_id,dataset_id;//attr_id,root_id;
 
 
 MPI_Info info  = MPI_INFO_NULL;
@@ -85,7 +90,7 @@ void get_fileDsc_global(string filename,fileDsc &fd)
 
   #ifdef H5_HAVE_PARALLEL
 
-  hid_t plist_id,file_id,attr_id,root_id;
+  hid_t plist_id,file_id,attr_id;//root_id;
 
 
   MPI_Info info  = MPI_INFO_NULL;
@@ -189,7 +194,7 @@ void get_fileDsc_local(string filename,long * numParts, RealC * localBoxOffset, 
 {
   #ifdef H5_HAVE_PARALLEL
 
-  hid_t plist_id,file_id,attr_id,root_id,dataset_id;
+  hid_t plist_id,file_id,dataset_id;//attr_id,root_id;
 
 
   MPI_Info info  = MPI_INFO_NULL;
@@ -625,5 +630,5 @@ int save_hdf5_particles(string filename,
     return 0;
 }
 
-
+}
 #endif

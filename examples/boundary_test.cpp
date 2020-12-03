@@ -6,14 +6,16 @@
 
 
 #include "LATfield2.hpp"
+#include <mpi.h>
 using namespace LATfield2;
 
 
 int main(int argc, char **argv)
 {
+    MPI_Init(&argc,&argv);
 
     //-------- Initilization of the parallel object ---------
-    int n,m;
+    int n=0,m=0;
 
     for (int i=1 ; i < argc ; i++ ){
 		if ( argv[i][0] != '-' )
@@ -28,7 +30,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-    parallel.initialize(n,m);
+    parallel.initialize(MPI_COMM_WORLD,n,m);
 
     //  parallel.PleaseNeverFinalizeMPI();
 
@@ -62,7 +64,7 @@ int main(int argc, char **argv)
 
     for(int p=0;p<parallel.size();p++)
     {
-	MPI_Barrier(MPI::COMM_WORLD);
+	MPI_Barrier(MPI_COMM_WORLD);
 	if(parallel.rank()==0)
 	{
 	    for(x.first();x.test();x.next())
@@ -118,7 +120,7 @@ int main(int argc, char **argv)
 		}
 	    }
 	}
-	MPI_Barrier(MPI::COMM_WORLD);
+	MPI_Barrier(MPI_COMM_WORLD);
     }
     cout<<"process: "<<parallel.rank()<<", numer of error: "<<error_count<<endl;
 /*
@@ -143,7 +145,7 @@ int main(int argc, char **argv)
 */
 
 
-//    MPI_Finalize();
+    MPI_Finalize();
 
 
 

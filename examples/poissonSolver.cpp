@@ -1,3 +1,5 @@
+#define FFT3D
+#define HDF5
 /*! file poissonSolver.cpp
     Created by David Daverio.
 
@@ -10,14 +12,16 @@
 
 #include <iostream>
 #include "LATfield2.hpp"
+#include <mpi.h>
 
 using namespace LATfield2;
-
+using namespace std;
 
 
 int main(int argc, char **argv)
 {
-    int n,m;
+    MPI_Init(&argc,&argv);
+    int n=0,m=0;
     int BoxSize = 64;
     int halo = 1;
     int khalo =0;
@@ -43,7 +47,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	parallel.initialize(n,m);
+	parallel.initialize(MPI_COMM_WORLD,n,m);
 
 
     double res2 =res*res;
@@ -157,4 +161,5 @@ int main(int argc, char **argv)
 #endif
     if (maxError > TOLERANCE) exit(max(1, 1 + (int) fabs(log10(maxError))));
     else exit(0);
+    MPI_Finalize();
 }
